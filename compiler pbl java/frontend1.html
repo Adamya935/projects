@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Java Compiler</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top bar with buttons */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+    }
+
+    .top-bar h1 {
+      font-size: 1.5rem;
+      margin: 0;
+      flex: 1;
+      text-align: center;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .top-bar button {
+      padding: 10px 20px;
+      background: #238636;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .top-bar button:hover {
+      background: #2ea043;
+      transform: translateY(-1px);
+    }
+
+    .top-bar button:active {
+      transform: translateY(0);
+    }
+
+    .back-btn {
+      background: #444c56 !important;
+    }
+
+    .back-btn:hover {
+      background: #555d66 !important;
+    }
+
+    /* Main content split vertically */
+    .split-container {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      padding: 1rem;
+      overflow: hidden;
+    }
+
+    .panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 1rem;
+      overflow: hidden;
+    }
+
+    .panel label {
+      font-weight: 600;
+      color: #79c0ff;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    textarea {
+      flex: 1;
+      width: 100%;
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 12px;
+      font-family: 'Courier New', monospace;
+      resize: none;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #58a6ff;
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+    }
+
+    /* Output Panel Styling */
+    #outputPanel {
+      flex: 1;
+      overflow-y: auto;
+      background: #0d1117;
+      border-radius: 6px;
+      padding: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .output-section {
+      margin-bottom: 1.5rem;
+      border-left: 4px solid #58a6ff;
+      padding-left: 1rem;
+    }
+
+    .output-section.tokens {
+      border-left-color: #79f0ff;
+    }
+
+    .output-section.symbol-table {
+      border-left-color: #d2a8ff;
+    }
+
+    .output-section.ir {
+      border-left-color: #ffa657;
+    }
+
+    .output-section.console {
+      border-left-color: #f85149;
+    }
+
+    .output-section.error {
+      border-left-color: #f85149;
+    }
+
+    .section-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #30363d;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tokens .section-title {
+      color: #79f0ff;
+    }
+
+    .symbol-table .section-title {
+      color: #d2a8ff;
+    }
+
+    .ir .section-title {
+      color: #ffa657;
+    }
+
+    .console .section-title {
+      color: #85e89d;
+    }
+
+    .error .section-title {
+      color: #f85149;
+    }
+
+    .token-item, .symbol-item, .ir-item, .console-line {
+      padding: 0.5rem 0;
+      font-size: 0.85rem;
+    }
+
+    .token-item {
+      color: #79f0ff;
+    }
+
+    .token-type {
+      color: #d2a8ff;
+      font-weight: bold;
+    }
+
+    .token-value {
+      color: #85e89d;
+    }
+
+    .symbol-item {
+      color: #c9d1d9;
+      padding: 0.75rem;
+      background: rgba(88, 166, 255, 0.1);
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 1rem;
+    }
+
+    .symbol-name {
+      color: #ffa657;
+      font-weight: bold;
+    }
+
+    .ir-item {
+      color: #85e89d;
+      padding: 0.5rem 0.75rem;
+      background: rgba(255, 166, 87, 0.05);
+      border-radius: 3px;
+      margin-bottom: 0.25rem;
+    }
+
+    .console-line {
+      color: #85e89d;
+    }
+
+    .console-line.error {
+      color: #f85149;
+    }
+
+    .console-line.warning {
+      color: #ffa657;
+    }
+
+    /* Scrollbar styling */
+    #outputPanel::-webkit-scrollbar,
+    textarea::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    #outputPanel::-webkit-scrollbar-track,
+    textarea::-webkit-scrollbar-track {
+      background: #0d1117;
+    }
+
+    #outputPanel::-webkit-scrollbar-thumb,
+    textarea::-webkit-scrollbar-thumb {
+      background: #30363d;
+      border-radius: 5px;
+    }
+
+    #outputPanel::-webkit-scrollbar-thumb:hover,
+    textarea::-webkit-scrollbar-thumb:hover {
+      background: #444c56;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      font-size: 1.2rem;
+      color: #58a6ff;
+    }
+
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-left: 10px;
+      border: 3px solid #30363d;
+      border-top-color: #58a6ff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .empty-message {
+      color: #8b949e;
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top bar with Back and Run buttons -->
+  <div class="top-bar">
+    <button class="back-btn" onclick="goBack()">← Back</button>
+    <h1>☕ Java Compiler IDE</h1>
+    <button onclick="runCode()">▶ Run</button>
+  </div>
+
+  <!-- Split input/output vertically -->
+  <div class="split-container">
+    <div class="panel">
+      <label for="input">📝 Input Code:</label>
+      <textarea id="input" placeholder="Write your Java code here...&#10;&#10;Example:&#10;int x = 5;&#10;y = 10;"></textarea>
+    </div>
+
+    <div class="panel">
+      <label for="output">📊 Compilation Output:</label>
+      <div id="outputPanel" class="empty-message">Enter code and click Run to compile...</div>
+    </div>
+  </div>
+
+  <script>
+    async function runCode() {
+      const inputCode = document.getElementById("input").value;
+      const outputPanel = document.getElementById("outputPanel");
+      
+      if (!inputCode.trim()) {
+        outputPanel.innerHTML = '<div class="empty-message">⚠️ Please enter some code!</div>';
+        return;
+      }
+
+      outputPanel.innerHTML = '<div class="loading">Compiling</div>';
+
+      try {
+        const response = await fetch("http://localhost:8080/api/compile", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ code: inputCode })
+        });
+
+        const data = await response.json();
+        let html = '';
+
+        if (data.success === false) {
+          html = `
+            <div class="output-section error">
+              <div class="section-title">❌ Compilation Error</div>
+              <div style="color: #f85149; padding: 1rem; background: rgba(248, 81, 73, 0.1); border-radius: 4px;">
+                ${escapeHtml(data.error)}
+              </div>
+            </div>
+          `;
+          
+          if (data.output) {
+            html += `
+              <div class="output-section console">
+                <div class="section-title">Console Output</div>
+                <pre style="white-space: pre-wrap; word-wrap: break-word; margin: 0;">${escapeHtml(data.output)}</pre>
+              </div>
+            `;
+          }
+        } else {
+          // Tokens section
+          if (data.result.tokens && Array.isArray(data.result.tokens)) {
+            html += '<div class="output-section tokens"><div class="section-title">✨ Tokens</div>';
+            data.result.tokens.forEach((t, i) => {
+              html += `<div class="token-item"><span style="color: #666;">${i + 1}.</span> <span class="token-type">${escapeHtml(t.type)}</span> <span style="color: #666;">→</span> <span class="token-value">"${escapeHtml(t.value)}"</span></div>`;
+            });
+            html += '</div>';
+          }
+
+          // Symbol Table section
+          if (data.result.semantic && !data.result.semantic.error) {
+            html += '<div class="output-section symbol-table"><div class="section-title">🔤 Symbol Table</div>';
+            for (const [name, info] of Object.entries(data.result.semantic)) {
+              html += `
+                <div class="symbol-item">
+                  <div class="symbol-name">${escapeHtml(name)}</div>
+                  <div>
+                    <span style="color: #79c0ff;">type:</span> <span style="color: #ffa657;">${escapeHtml(info.type)}</span> | 
+                    <span style="color: #79c0ff;">value:</span> <span style="color: #85e89d;">${escapeHtml(info.value || 'null')}</span> | 
+                    <span style="color: #79c0ff;">init:</span> <span style="color: #58a6ff;">${info.initialized ? 'true' : 'false'}</span>
+                  </div>
+                </div>
+              `;
+            }
+            html += '</div>';
+          } else if (data.result.semantic && data.result.semantic.error) {
+            html += `
+              <div class="output-section error">
+                <div class="section-title">Semantic Analysis Error</div>
+                <div style="color: #f85149;">${escapeHtml(data.result.semantic.error)}</div>
+              </div>
+            `;
+          }
+
+          // IR Code section
+          if (data.result.ir && Array.isArray(data.result.ir)) {
+            html += '<div class="output-section ir"><div class="section-title">⚙️ Intermediate Code (3-Address Code)</div>';
+            data.result.ir.forEach((line, i) => {
+              html += `<div class="ir-item"><span style="color: #666; margin-right: 1rem;">${i + 1}.</span> ${escapeHtml(line)}</div>`;
+            });
+            html += '</div>';
+          } else if (data.result.ir && data.result.ir.error) {
+            html += `
+              <div class="output-section error">
+                <div class="section-title">IR Generation Error</div>
+                <div style="color: #f85149;">${escapeHtml(data.result.ir.error)}</div>
+              </div>
+            `;
+          }
+
+          // Console output from backend
+          if (data.output) {
+            html += `
+              <div class="output-section console">
+                <div class="section-title">🖥️ Backend Console Output</div>
+                <pre style="white-space: pre-wrap; word-wrap: break-word; margin: 0; color: #85e89d; background: rgba(133, 232, 157, 0.05); padding: 1rem; border-radius: 4px; overflow-x: auto;">${escapeHtml(data.output)}</pre>
+              </div>
+            `;
+          }
+        }
+
+        outputPanel.innerHTML = html;
+      } catch (error) {
+        outputPanel.innerHTML = `
+          <div class="output-section error">
+            <div class="section-title">❌ Connection Error</div>
+            <div style="color: #f85149; padding: 1rem;">
+              <p><strong>Cannot connect to backend server!</strong></p>
+              <p>Make sure the WebServer is running:</p>
+              <pre style="background: #0d1117; padding: 0.75rem; border-radius: 4px; border: 1px solid #30363d; overflow-x: auto;">java WebServer</pre>
+              <p style="margin-top: 1rem; font-size: 0.9rem; color: #8b949e;">Error: ${escapeHtml(error.message)}</p>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.toString().replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function goBack() {
+      window.location.href = "front.html"; 
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Compiler</title>
+  <style>
+    /* Same styles as before */
+    body {
+      height: 100%;
+      margin: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .full-screen { position: relative; min-height: 100vh; }
+    .page-heading {
+      position: absolute; top: 20vh; left: 50%; transform: translateX(-50%);
+      text-align: center; font-size: 2rem; font-weight: 600;
+    }
+    .subtitle {
+      position: absolute; top: calc(20vh + 3.25rem); left: 50%; transform: translateX(-50%);
+      font-size: 1rem; color: #d0d0d0;
+    }
+    .lang-row {
+      position: absolute; top: calc(20vh + 7rem); left: 50%; transform: translateX(-50%);
+      display: flex; gap: 2.25rem;
+    }
+    .lang { cursor: pointer; text-align: center; }
+    .lang img { width: 96px; height: 96px; transition: transform 0.2s; }
+    .lang:hover img { transform: scale(1.1); }
+    .lang span { color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="full-screen">
+    <h1 class="page-heading">Intermediate Code Generation Engine</h1>
+    <p class="subtitle">Select your language</p>
+
+    <div class="lang-row">
+      <!-- Java -->
+      <!-- <div class="lang" onclick="location.href='java.html'">
+        <img src="https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg" alt="Java logo" />
+        <span>Java</span>
+      </div> -->
+
+      <!-- Java -->
+<div class="lang" onclick="location.href='frontend1.html'">
+  <img src="https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg" alt="Java logo" />
+  <span>Java</span>
+</div>
+
+
+    </div>
+  </div>
+</body>
+</html>

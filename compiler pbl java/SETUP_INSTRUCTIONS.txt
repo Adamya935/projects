@@ -1,0 +1,82 @@
+═══════════════════════════════════════════════════════════════════════════
+  COMPILER FRONTEND-BACKEND CONNECTION SETUP GUIDE
+═══════════════════════════════════════════════════════════════════════════
+
+This setup connects your Java compiler backend with an HTML/JavaScript frontend.
+
+STEP 1: COMPILE ALL JAVA FILES
+────────────────────────────────
+
+Open a terminal/PowerShell in the "compiler pbl java" folder and run:
+
+    javac Tokenizer.java Syntax.java Semantic.java IRGenerator.java WebServer.java
+
+This will create .class files for all Java classes.
+
+
+STEP 2: START THE BACKEND WEB SERVER
+─────────────────────────────────────
+
+Still in the same terminal, run:
+
+    java WebServer
+
+You should see output like:
+    Web server started on http://localhost:8080
+
+Leave this terminal open! The server must keep running.
+
+
+STEP 3: OPEN THE FRONTEND IN YOUR BROWSER
+───────────────────────────────────────────
+
+Open a web browser and visit:
+
+    http://localhost:8080/
+
+Or if you want to go directly to the compiler interface:
+
+    http://localhost:8080/frontend1.html
+
+You should see the language selection page (front.html) or the Java compiler interface directly.
+
+
+STEP 4: USE THE COMPILER
+─────────────────────────
+
+1. Click "Java" or navigate to frontend1.html
+2. Enter Java code in the left panel (Input Code)
+3. Click the "Run" button
+4. See all results in the right panel (Output):
+   - TOKENS: List of recognized tokens
+   - SYMBOL TABLE: Variables and their types
+   - INTERMEDIATE CODE: Three-address code (TAC)
+   - BACKEND OUTPUT: Console output from the compiler
+
+Example Code to Test:
+──────────────────
+
+    int x = 5;
+    y = 10;
+
+(Note: y should give an error since it's used before declaration)
+
+
+TROUBLESHOOTING
+───────────────
+
+❌ Error: "Cannot connect to backend"
+   → Make sure WebServer.java is running (Step 2)
+   → Make sure it says "Web server started on http://localhost:8080"
+
+❌ Compilation errors when running "javac"
+   → Make sure you're in the correct directory
+   → Make sure all .java files are in the same folder
+   → Check that the Java compiler is installed (javac)
+
+❌ Port 8080 already in use
+   → Another program is using port 8080
+   → You can modify WebServer.java to use a different port (change "8080" to another number like "8081")
+   → Then update frontend1.html with the new port: "http://localhost:8081/api/compile"
+
+═══════════════════════════════════════════════════════════════════════════
